@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>FfbBridge</AssemblyName>
+    <RootNamespace>FfbBridge</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>FfbBridge — YurFFB</Product>
+    <Description>Bridge FFB DirectInput (vJoy) ke motor DC via firmware YurFFB</Description>
+    <!-- Izinkan build di Linux/macOS utk cek compile: dotnet build -p:EnableWindowsTargeting=true -->
+    <EnableWindowsTargeting Condition="'$(EnableWindowsTargeting)' == ''">false</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

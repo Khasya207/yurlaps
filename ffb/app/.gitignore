@@ -1,0 +1,4 @@
+# artefak build .NET
+bin/
+obj/
+publish/
