@@ -1,0 +1,24 @@
+PSoC Creator target: CY8C5888LTI-LP097 (CY8CKIT-059)
+Master/BUS clock: 80 MHz from 5 MHz ECO through PLL x16
+
+Required exact component/API names:
+  LoopIn       Digital Input Pin, P12[2], rising interrupt
+  HystOut      Hardware Digital Output Pin, P12[3], driven by LoopIn net
+  LoopEdgeISR  Interrupt connected to LoopIn interrupt
+  SampleClock  20 MHz Clock connected to SampleDMA drq
+  SampleDMA    DMA, rising-edge hardware request
+  HostUART     UART, 57600 8-N-1
+  HostRx       Digital Input Pin, P12[6], connected to HostUART rx
+  HostTx       Digital Output Pin, P12[7], connected to HostUART tx
+  StatusLED    Software Digital Output Pin, P2[1], active low
+
+Source files to add to project:
+  main.c
+  capture_dma.c
+  passage_tracker.c
+  rch_demod.c
+  rch_protocol.c
+  serial_console.c
+  timebase.c
+
+See ../PSoC-Creator-Setup.md for exact settings and wiring.

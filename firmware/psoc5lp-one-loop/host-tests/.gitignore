@@ -1,0 +1,7 @@
+test_decoder
+test_console
+test_capture
+test_timebase
+test_decoder_san
+*.exe
+*.obj
