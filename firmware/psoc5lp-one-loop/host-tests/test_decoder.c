@@ -229,7 +229,7 @@ static void test_passage_tracker(void)
     passage_tracker_poll(&tracker, 2233u);
     CHECK(emitted_count == 2u);
 
-    /* Cano output has six ID hex digits; do not silently truncate larger IDs. */
+    /* The passage protocol has six ID hex digits; never truncate larger IDs. */
     {
         uint8_t large_id_packet[RCH_TELEGRAM_BYTES];
         rch_packet_info_t large_id;

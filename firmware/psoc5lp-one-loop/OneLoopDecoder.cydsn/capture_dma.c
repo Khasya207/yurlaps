@@ -2,7 +2,7 @@
  * YurLaps one-loop decoder - 20 MS/s circular GPIO capture.
  *
  * PSoC Creator components expected by this module are documented in
- * PSoC-Creator-Setup.md. Component/API names are intentionally checked by the
+ * PANDUAN-PSOC-CREATOR-ID.md. Component/API names are checked by the
  * syntax test so accidental schematic renaming is caught.
  * SPDX-License-Identifier: BSD-3-Clause
  */

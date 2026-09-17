@@ -55,7 +55,7 @@ Sebelum flashing:
 
 1. Simpan HEX firmware lama.
 2. Catat versi HEX yang sedang digunakan.
-3. Foto sambungan P12[2], P12[3], P12[6], P12[7], 5 V, dan GND.
+3. Foto sambungan P12[2], P12[3], P12[7], 5 V, dan GND.
 4. Catat posisi/orientasi CY8CKIT-059 pada socket PCB decoder.
 5. Untuk percobaan pertama, putuskan coax/amplifier dan supply eksternal.
 6. Jangan memberi daya dari dua sumber 5 V sekaligus kecuali rangkaiannya sudah
@@ -316,58 +316,47 @@ yang salah selama clock berada pada level high.
 Burst count dan request-per-burst tidak diisi di schematic; source
 `capture_dma.c` menginisialisasinya sebagai satu byte per request.
 
-## E6. `HostUART`
+## E6. `LapUART`
 
 1. Cari komponen **UART** di bagian Communications.
 2. Drag ke TopDesign.
 3. Nama instance:
 
 ```text
-HostUART
+LapUART
 ```
 
 4. Atur:
-   - Mode: `Full UART`;
+   - Mode: UART dengan **TX saja**;
    - TX: enabled;
-   - RX: enabled;
+   - RX: disabled;
    - Clock: Internal;
    - Baud rate: `57600`;
    - Data bits: `8`;
    - Parity: `None`;
    - Stop bits: `1`;
    - Flow control: `None`;
-   - RX buffer: `64` bytes;
    - TX buffer: `64` bytes.
 5. Periksa actual baud error. Nilainya harus kecil karena clock 80 MHz.
 
-## E7. `HostRx`
+Firmware ini sengaja tidak mempunyai RX, command, mode, learn, startup banner,
+atau USB CDC. TX hanya mengirim record passage agar parser ESP32 tidak menerima
+teks lain.
 
-1. Tambahkan satu Digital Input Pin.
-2. Nama:
-
-```text
-HostRx
-```
-
-3. HW connection aktif.
-4. High Impedance Digital.
-5. Tidak memerlukan interrupt.
-6. Input synchronization boleh synchronized/default karena hanya 57600 baud.
-
-## E8. `HostTx`
+## E7. `LapTx`
 
 1. Tambahkan satu Digital Output Pin.
 2. Nama:
 
 ```text
-HostTx
+LapTx
 ```
 
 3. HW connection aktif.
 4. Strong Drive.
 5. Slew rate default/fast.
 
-## E9. `StatusLED`
+## E8. `StatusLED`
 
 1. Tambahkan satu Digital Output Pin.
 2. Nama:
@@ -387,7 +376,7 @@ Write(0) = LED menyala
 Write(1) = LED mati
 ```
 
-**Checkpoint E:** TopDesign memiliki sembilan instance dengan nama persis:
+**Checkpoint E:** TopDesign memiliki delapan instance dengan nama persis:
 
 ```text
 LoopIn
@@ -395,9 +384,8 @@ HystOut
 LoopEdgeISR
 SampleClock
 SampleDMA
-HostUART
-HostRx
-HostTx
+LapUART
+LapTx
 StatusLED
 ```
 
@@ -437,16 +425,15 @@ Hubungkan output `SampleClock` ke `drq` pada `SampleDMA`:
 SampleClock ------------------------> SampleDMA drq
 ```
 
-## F4. UART
+## F4. UART TX
 
 Hubungkan:
 
 ```text
-HostRx -----------------------------> HostUART rx
-HostUART tx ------------------------> HostTx
+LapUART tx --------------------------> LapTx
 ```
 
-Tidak ada wire ke `StatusLED` karena pin itu software-controlled.
+Tidak ada RX. Tidak ada wire ke `StatusLED` karena pin itu software-controlled.
 
 TopDesign final secara konseptual:
 
@@ -458,8 +445,7 @@ LoopIn interrupt -------------------> LoopEdgeISR
 
 SampleClock ------------------------> SampleDMA drq
 
-HostRx -----------------------------> HostUART RX
-HostUART TX ------------------------> HostTx
+LapUART TX -------------------------> LapTx
 
 StatusLED        [software pin, tanpa wire]
 ```
@@ -480,15 +466,14 @@ terhubung.
 |---|---|---|
 | `LoopIn` | `P12[2]` | output rangkaian input/phase conditioner |
 | `HystOut` | `P12[3]` | feedback melalui R11 4.87 kOhm |
-| `HostRx` | `P12[6]` | UART RX dari KitProg/host |
-| `HostTx` | `P12[7]` | UART TX ke KitProg/host |
+| `LapTx` | `P12[7]` | record passage TX ke KitProg/ESP32 |
 | `StatusLED` | `P2[1]` | LED biru onboard active-low |
 
-Jangan assign P15[0] dan P15[1] sebagai GPIO. Kedua pin tersebut akan dipakai
-MHz ECO/crystal.
+P12[6] sengaja tidak digunakan. Jangan assign P15[0] dan P15[1] sebagai GPIO;
+kedua pin tersebut dipakai MHz ECO/crystal.
 
-Jika Creator memberi konflik P12[6]/P12[7], pastikan tidak ada USBFS atau
-komponen pin lain yang menggunakan keduanya.
+Jika Creator memberi konflik P12[7], pastikan tidak ada USBFS atau komponen pin
+lain yang menggunakan pin tersebut.
 
 **Checkpoint G:** tidak ada dua signal pada pin yang sama dan device tetap
 CY8C5888LTI-LP097.
@@ -579,8 +564,8 @@ main.c
 capture_dma.c
 passage_tracker.c
 rch_demod.c
+rch_output.c
 rch_protocol.c
-serial_console.c
 timebase.c
 ```
 
@@ -590,8 +575,8 @@ File header:
 capture_dma.h
 passage_tracker.h
 rch_demod.h
+rch_output.h
 rch_protocol.h
-serial_console.h
 timebase.h
 ```
 
@@ -634,7 +619,7 @@ LoopIn
 LoopEdgeISR
 SampleClock
 SampleDMA
-HostUART
+LapUART
 StatusLED
 ```
 
@@ -710,9 +695,9 @@ Rising-edge interrupt belum diaktifkan pada customizer `LoopIn`.
 
 Interrupt component tidak bernama `LoopEdgeISR`.
 
-### `HostUART_PutString` undefined
+### `LapUART_PutChar` undefined
 
-UART component tidak bernama `HostUART` atau TX belum diaktifkan.
+UART component tidak bernama `LapUART` atau TX belum diaktifkan.
 
 ### `StatusLED_Write` undefined
 
@@ -772,9 +757,13 @@ dapat memprogram ulang selama hardware/programmer normal.
 
 ---
 
-# Bagian L — tes UART sebelum memasang loop
+# Bagian L — tes UART minimal sebelum memasang loop
 
-## L1. Terminal
+Firmware produksi ini sengaja **tidak mengirim banner**, tidak menerima
+command, dan tidak mempunyai mode. Dengan loop terlepas, terminal harus tetap
+kosong. Ini mencegah ESP32 salah menganggap teks startup sebagai passage.
+
+## L1. Terminal penerima
 
 1. Buka Device Manager dan catat COM KitProg USB-UART.
 2. Buka Tera Term/PuTTY.
@@ -787,60 +776,21 @@ Data bits  8
 Parity     None
 Stop bits  1
 Flow       None
-Local echo opsional
 ```
 
 5. Tekan reset target.
+6. Kondisi normal tanpa loop adalah:
+   - terminal tidak menampilkan apa pun;
+   - LED biru tetap mati.
+7. Jika LED biru menyala terus sejak reset, inisialisasi DWT/DMA gagal. Jangan
+   memasang loop; periksa build clock, DMA, dan report memory terlebih dahulu.
 
-Banner yang diharapkan:
+Karena output harus record-only, tidak ada `HELP`, `SELFTEST`, `STATUS`, atau
+`MODE`. Pengujian codec dilakukan oleh host test dalam repository. Jika nanti
+diperlukan firmware debug terpisah, buat build khusus; jangan mencampurkan teks
+debug ke stream produksi ESP32.
 
-```text
-YURLAPS ONELOOP 0.1 READY 57600 8N1; TYPE HELP
-```
-
-Jika tidak muncul:
-
-- pastikan COM adalah KitProg USB-UART;
-- bukan target USB connector;
-- pastikan P12[6]/P12[7] benar;
-- pastikan HostUART 57600;
-- coba tekan reset;
-- program ulang.
-
-## L2. Perintah pertama
-
-Ketik satu per satu, tekan Enter:
-
-```text
-HELP
-VERSION
-MODE
-SELFTEST
-STATUS
-```
-
-Hasil SELFTEST yang benar:
-
-```text
-SELFTEST PASS id=4961721 vector=F916EFDA353B28290B0BCF3C
-```
-
-SELFTEST menguji codec di PSoC, bukan loop analog. Jika SELFTEST gagal, jangan
-lanjutkan ke loop.
-
-Status awal tanpa loop kira-kira:
-
-```text
-STATUS t_qms=... triggers=0 windows=0 dma_errors=0 preambles=0 rejects=0 packets=0 passages=0 accepted=0 suppressed=0 dropped=0
-```
-
-Yang paling penting:
-
-```text
-dma_errors=0
-```
-
-**Checkpoint L:** banner, HELP, SELFTEST PASS, dan dma_errors=0.
+**Checkpoint L:** terminal kosong dan LED mati setelah reset tanpa loop.
 
 ---
 
@@ -853,7 +803,7 @@ Matikan power sebelum memasang.
 - Output conditioner decoder ke `P12[2]`.
 - `P12[3]` ke node input hanya melalui `R11 = 4.87 kOhm`.
 - Crystal 5 MHz tetap antara P15[0]/P15[1].
-- UART KitProg tetap P12[6]/P12[7].
+- UART TX berada pada P12[7]. P12[6] tidak digunakan.
 - Semua ground mengikuti PCB decoder yang sudah bekerja.
 - Jangan sambungkan center coax langsung ke P12[2].
 
@@ -863,130 +813,123 @@ Matikan power sebelum memasang.
 2. Gunakan Cano amplifier yang diketahui bekerja.
 3. Gunakan satu transponder dengan ID diketahui.
 4. Letakkan transponder dekat tengah loop, sekitar 5-10 cm dahulu.
-5. Nyalakan decoder.
-6. Di terminal ketik:
+5. Nyalakan decoder dan buka terminal 57600 8-N-1.
+6. Gerakkan transponder melintasi loop secara perlahan.
+7. LED biru P2[1] harus berkedip sekitar 100 ms ketika packet valid ditemukan.
+8. Setelah tidak ada packet selama 8 ms, satu record passage dikirim.
+
+Contoh record untuk transponder ID 2,351,957:
 
 ```text
-MODE DIAG
+23E35500075A06-01152A0000
 ```
 
-7. Gerakkan transponder melintasi loop secara perlahan.
-8. LED biru P2[1] harus menyala sekitar 100 ms ketika packet valid ditemukan.
-
-Contoh diagnostic berhasil:
+Record sebenarnya mengikuti format publik RCHourglass:
 
 ```text
-SCAN samples=4096 preambles=... rejects=... valid_candidates=... unique=1
-PKT raw=F916EFDA353B28290B0BCF3C id=4961721 status=0 t_qms=1234 q=100 sample=811 valid=1
-4BB5B9000004D2
-PASS id=4961721 t_qms=1234 hits=3 q=98 status=510 raw=F916...
+nnnnnntttttttt-idhhqqvvtm\r\n
 ```
 
-Nilai persis sample, timestamp, jumlah candidate, hits, dan quality akan berbeda.
+| Bagian | Arti |
+|---|---|
+| `nnnnnn` | ID transponder, 6 digit hexadecimal |
+| `tttttttt` | timestamp packet pertama, quarter-millisecond hexadecimal |
+| `id` | decoder ID tetap `01` |
+| `hh` | hits valid, hexadecimal |
+| `qq` | average digital decode confidence 0-100, hexadecimal |
+| `vv` | `00`, voltage tidak tersedia |
+| `tm` | `00`, temperature tidak tersedia |
 
-`q` adalah digital demodulation confidence, bukan RSSI analog dan bukan skala
-signal strength MYLAPS.
+Contoh di atas berarti:
+
+```text
+ID       0x23E355 = 2351957
+Time     0x00075A06 quarter-ms
+Decoder  0x01
+Hits     0x15 = 21
+Quality  0x2A = 42
+Voltage  unavailable
+Temp     unavailable
+```
+
+Nilai quality firmware ini adalah keyakinan voting sampel digital, bukan RSSI
+analog dan bukan klaim bahwa rumusnya identik dengan firmware RCHourglass yang
+source decoder-nya tidak diterbitkan.
 
 ---
 
-# Bagian N — membaca STATUS tanpa oscilloscope
+# Bagian N — diagnosis minimal tanpa mencemari TX
 
-Urutan diagnosis harus seperti ini.
+Karena TX hanya boleh berisi record passage, diagnosis produksi sengaja memakai
+LED dan Creator debugger, bukan teks STATUS.
 
-## N1. `dma_errors` bukan nol
-
-DMA gagal dialokasikan, buffer placement salah, TD gagal dikonfigurasi, atau
-re-arm gagal. Jangan menyimpulkan masalah loop sebelum error DMA diperbaiki.
-
-## N2. `triggers=0`
-
-P12[2] tidak menghasilkan rising edge digital.
-
-Periksa:
-
-1. Loop/amplifier mendapat power.
-2. Coax dan BNC.
-3. Rangkaian Q1-Q4/C1/C2.
-4. Bias R9/R10.
-5. P12[2] assignment.
-6. P12[3]/R11.
-7. Transponder dan baterainya.
-
-DMM hanya dapat memeriksa supply dan DC bias; DMM tidak dapat membuktikan bentuk
-carrier 5 MHz.
-
-## N3. Trigger/windows naik, preambles tetap nol
-
-Ada aktivitas digital tetapi tidak cocok dengan `F9 16` differential packet.
-
-Periksa:
-
-- ECO benar 5 MHz;
-- BUS 80 MHz;
-- SampleClock 20 MHz;
-- DMA request Rising Edge;
-- sinyal terlalu berisik atau clipping;
-- transponder bukan format legacy yang didukung;
-- posisi transponder terlalu jauh.
-
-## N4. Preamble naik, reject banyak, packets nol
-
-Sebagian header terlihat tetapi payload gagal strict re-encoding. Kemungkinan:
-
-- noise;
-- clipping;
-- edge sampling tidak stabil;
-- request DMA salah;
-- carrier/reference berbeda;
-- signal conditioner belum memberi level digital bersih.
-
-Ulangi dengan loop pendek, transponder dekat, motor/ESC mati.
-
-## N5. Packets naik tetapi passages tidak naik langsung
-
-Passage baru ditutup setelah tidak ada packet lagi selama 8 ms. Tunggu sebentar
-setelah memindahkan transponder. Same ID juga ditahan 300 ms dari awal passage
-untuk mencegah double count.
-
-## N6. Passage dan record keluar
-
-Format Cano normal:
+## N1. Arti LED
 
 ```text
-4BB5B900001234
+LED mati setelah reset       = inisialisasi berhasil, menunggu packet
+LED berkedip singkat         = satu atau lebih packet valid ditemukan
+LED menyala terus            = DWT/DMA init atau DMA re-arm gagal
 ```
 
-- `4BB5B9` = ID 4961721 dalam hexadecimal;
-- `00001234` = timestamp quarter-millisecond hexadecimal;
-- akhir line = CRLF.
+Jika LED tidak pernah berkedip:
 
-Sebelum dipakai YurLaps, ketik:
+1. Pastikan loop/amplifier mendapat power.
+2. Periksa coax dan BNC.
+3. Periksa rangkaian Q1-Q4/C1/C2.
+4. Periksa bias R9/R10.
+5. Periksa P12[2] assignment.
+6. Periksa P12[3]/R11.
+7. Periksa transponder dan baterainya.
+8. Ulangi dengan transponder 5-10 cm dari loop, motor/ESC mati.
+9. Periksa kembali ECO 5 MHz, BUS 80 MHz, SampleClock 20 MHz, dan DMA Rising
+   Edge.
 
-```text
-MODE CANO
-```
+DMM dapat memeriksa supply dan DC bias, tetapi tidak dapat membuktikan bentuk
+carrier 5 MHz. Bila LED tetap tidak berkedip, langkah berikutnya adalah membuat
+build debug khusus atau mengambil sample buffer melalui debugger; jangan
+menambahkan pesan acak ke protokol produksi.
 
-Diagnostic mode menghasilkan banyak teks dan dapat memperlambat UART; jangan
-pakai MODE DIAG pada balapan.
+## N2. LED berkedip tetapi record belum keluar
+
+Passage baru ditutup setelah 8 ms tanpa packet baru. Jauhkan transponder dari
+loop dan tunggu. Same ID ditahan 300 ms dari awal passage untuk mencegah double
+count.
+
+## N3. Record keluar tetapi field tidak masuk akal
+
+Satu baris harus tepat 25 karakter sebelum CRLF. Semua karakter harus uppercase
+hexadecimal kecuali tanda `-` di posisi ke-15. Pastikan terminal tidak melakukan
+local echo atau translasi line ending.
 
 ---
 
-# Bagian O — UART ke ESP32-C3
-
-P12[7] adalah TX PSoC dan P12[6] adalah RX PSoC.
+# Bagian O — UART TX ke ESP32-C3
 
 ```text
-P12[7] PSoC TX -> level shifter/divider -> ESP32 RX
-P12[6] PSoC RX <- level-compatible buffer <- ESP32 TX
-GND PSoC ------------------------------ GND ESP32
+P12[7] PSoC LapTx -> level shifter/divider -> ESP32 RX
+GND PSoC ----------------------------------> GND ESP32
+P12[6] tidak digunakan
 ```
 
 PSoC dapat memakai I/O 5 V sedangkan ESP32-C3 tidak 5-V tolerant. Jangan
-menghubungkan PSoC TX langsung ke ESP RX kecuali schematic/pengukuran sudah
-membuktikan levelnya maksimum 3.3 V.
+menghubungkan P12[7] langsung ke ESP32 RX kecuali schematic/pengukuran telah
+membuktikan level output maksimum 3.3 V. Gunakan level shifter atau resistor
+divider yang benar.
 
-Untuk output satu arah, P12[6] tidak wajib jika ESP hanya menerima record.
-Namun RX berguna untuk perintah STATUS/MODE.
+Parser ESP32 dapat memvalidasi record dengan aturan:
+
+1. tunggu `\n`;
+2. buang `\r`;
+3. panjang harus 25;
+4. karakter indeks 14 harus `-`;
+5. karakter lain harus hexadecimal;
+6. parse ID dari karakter 0-5;
+7. parse timestamp dari 6-13;
+8. parse hits dari 17-18;
+9. parse quality dari 19-20;
+10. abaikan field lain jika belum diperlukan.
+
+Tidak ada banner atau teks mode, sehingga setiap line valid adalah passage.
 
 ---
 
@@ -1006,9 +949,10 @@ Namun RX berguna untuk perintah STATUS/MODE.
 
 1. Pastikan memakai COM KitProg USB-UART.
 2. Periksa 57600 8-N-1, no flow.
-3. Periksa HostRx=P12[6], HostTx=P12[7].
-4. Pastikan bukan target USB connector.
-5. Clean, Generate, Build, Program ulang.
+3. Periksa LapUART TX-only dan LapTx=P12[7].
+4. Ingat bahwa tanpa passage terminal memang harus kosong.
+5. Pastikan bukan target USB connector.
+6. Clean, Generate, Build, Program ulang.
 
 ## P3. Mengembalikan HEX lama
 
@@ -1035,18 +979,18 @@ Jangan lewatkan satu pun:
 [ ] LoopIn interrupt terhubung ke LoopEdgeISR
 [ ] SampleClock 20 MHz terhubung ke SampleDMA drq
 [ ] SampleDMA request Rising Edge
-[ ] HostUART 57600 8-N-1
-[ ] HostRx P12[6]
-[ ] HostTx P12[7]
+[ ] LapUART TX-only 57600 8-N-1
+[ ] LapTx P12[7]
+[ ] P12[6] tidak digunakan
 [ ] StatusLED P2[1], initial 1, software-controlled
 [ ] MHzECO 5 MHz pada P15[0]/P15[1]
 [ ] PLL/Master/BUS 80 MHz
 [ ] Generate Application berhasil
 [ ] Build 0 errors
 [ ] Program + Verify berhasil
-[ ] Banner UART muncul
-[ ] SELFTEST PASS
-[ ] STATUS dma_errors=0
+[ ] Setelah reset tanpa loop: terminal kosong dan LED mati
+[ ] Valid packet membuat LED berkedip
+[ ] Record passage tepat 25 karakter plus CRLF
 [ ] Test pertama memakai loop pendek dan transponder dekat
 [ ] Firmware lama tersedia untuk rollback
 ```

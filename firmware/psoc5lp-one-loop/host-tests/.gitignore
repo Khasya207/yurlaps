@@ -1,5 +1,5 @@
 test_decoder
-test_console
+test_output
 test_capture
 test_timebase
 test_decoder_san

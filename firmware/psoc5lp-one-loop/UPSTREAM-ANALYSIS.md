@@ -155,15 +155,16 @@ complete packet while remaining small enough for PSoC 5LP SRAM.
 
 ## Output compatibility selected for stage one
 
-The serial wiki specifies the hardware UART on P12[6]/P12[7] as 57600 baud,
-8-N-1. The initial production record is Cano format:
+The public serial wiki specifies 57600 baud, 8-N-1 and a 25-character
+RCHourglass passage record:
 
 ```text
-nnnnnntttttttt\r\n
+nnnnnntttttttt-idhhqqvvtm\r\n
 ```
 
-- six ASCII hexadecimal digits: transponder number;
-- eight ASCII hexadecimal digits: time in quarter milliseconds since startup.
-
-The target-native USB CDC path and its host-selected baud behavior are not used
-in this first build.
+This minimal firmware transmits that format from P12[7] only. It supplies the
+six-digit ID, eight-digit quarter-millisecond timestamp, fixed decoder ID `01`,
+packet hits, and independently calculated digital demodulation quality.
+Voltage and temperature are `00` because those measurements are unavailable.
+No RX pin, modes, learn commands, startup banner, configuration manager, or USB
+CDC are implemented.

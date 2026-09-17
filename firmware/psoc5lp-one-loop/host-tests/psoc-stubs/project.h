@@ -50,11 +50,8 @@ void LoopEdgeISR_StartEx(void (*handler)(void));
 void LoopIn_SetInterruptMode(uint16, uint16);
 uint8 LoopIn_ClearInterrupt(void);
 
-void HostUART_Start(void);
-void HostUART_PutChar(uint8);
-void HostUART_PutString(const char *);
-uint8 HostUART_GetRxBufferSize(void);
-uint8 HostUART_ReadRxData(void);
+void LapUART_Start(void);
+void LapUART_PutChar(uint8);
 void StatusLED_Write(uint8);
 
 #endif /* PROJECT_H */
