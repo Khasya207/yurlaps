@@ -105,6 +105,23 @@ In Creator:
 
 ## 5. Build TopDesign exactly
 
+### Why there is no Comparator component in stage one
+
+When this project is installed on the published/original decoder PCB, the coax
+is **not** connected directly to the PSoC. Q1-Q4, C1/C2 and the R9/R10 bias node
+already amplify/limit and condition the 5 MHz signal before it reaches P12[2].
+The P12[2] digital input buffer is the decision threshold, while P12[3] feeds the
+same logic level back through R11 = 4.87 kOhm to add external hysteresis.
+Therefore a PSoC Comparator component would duplicate the existing decision
+stage and is not part of this original-PCB-compatible TopDesign.
+
+If Q1-Q4 are removed, or a passive/new analog receiver is connected instead,
+then a sufficiently fast **external comparator or limiting receiver must be
+placed before P12[2]**. Never connect raw loop/coax or an analog sine signal
+directly to P12[2]. Keep the PSoC side as a digital input after that external
+comparator. The future universal receiver design is a different front end and
+will include comparator/limiter and RSSI circuitry.
+
 Open `TopDesign.cysch`. Add the following components from **Component Catalog**.
 Component instance names are case-sensitive because the C source uses their
 generated APIs.
