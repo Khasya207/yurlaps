@@ -4,6 +4,9 @@ Status: arsitektur awal / belum menjadi skema produksi
 
 Tanggal: 2026-09-16
 
+Analisis khusus jaringan tuning Cano untuk loop 3,5–4 m tersedia di
+[CANO-LOOP-TUNING-4M-ID.md](CANO-LOOP-TUNING-4M-ID.md).
+
 ## 1. Sasaran produk yang disepakati
 
 - Carrier legacy: 5 MHz; decoder baru harus kompatibel dengan transponder RCHourglass yang sudah digunakan.
