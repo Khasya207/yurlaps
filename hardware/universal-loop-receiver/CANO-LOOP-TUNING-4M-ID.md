@@ -18,6 +18,20 @@ Untuk loop satu lilitan berbentuk kira-kira **4,0 m x 0,30 m**, jawaban singkatn
 
 Untuk target komersial **nol missed lap**, hasil hit bagus pada satu transponder diam belum cukup. Setelan harus lulus passage bergerak, motor/ESC aktif, beberapa posisi melintang track, kondisi kering/basah, dan kendaraan berdekatan.
 
+### 1.1 Interpretasi observasi pengguna: 18 AWG tanpa jumper
+
+Pengguna melaporkan bahwa C1 = 39 pF tanpa jumper memberi hasil yang relatif sama pada loop sekitar 4 m dan loop sangat kecil sekitar 30 cm. Ini tidak otomatis aneh atau membuktikan kedua loop mempunyai tuning resonansi yang sama.
+
+- Amplifier Cano sengaja memberi beban resistif dan Q relatif rendah, sehingga responsnya tidak seperti tank LC tajam yang hanya bekerja pada satu nilai C.
+- Decoder setelah amplifier mengubah sinyal menjadi keputusan digital. Selama kedua sinyal masih melewati ambang dengan zero-crossing yang cukup bersih, perubahan amplitudo analog dapat tidak terlihat pada LED, passage record, atau jumlah hits.
+- `hits` adalah jumlah telegram yang berhasil divalidasi, bukan RSSI. Pada passage dengan kecepatan dan jarak dua kabel arah perjalanan yang sama, waktu deteksi juga mirip walaupun lebar loop melintang track sangat berbeda.
+- Kawat 18 AWG mempunyai resistansi lebih rendah dan induktansi sedikit lebih rendah daripada kawat referensi 24 AWG. Resistansi rendah membantu loop panjang mempertahankan margin.
+- Loop 30 cm yang diuji dekat transponder dapat mempunyai coupling sangat kuat. Perbedaan tuning baru terlihat ketika tinggi, kecepatan, noise motor/ESC, atau posisi melintang mendekati batas deteksi.
+
+Sebagai pembanding matematis, bila loop kecil itu benar-benar berbentuk 0,30 m x 0,30 m dari 18 AWG, perkiraannya hanya sekitar 1,34 uH dan memerlukan sekitar 754 pF untuk resonansi LC ideal pada 5 MHz. Fakta bahwa loop itu tetap terdeteksi dengan C1 39 pF menegaskan bahwa hasil decoder saat masih jauh di atas threshold bukan alat ukur resonansi.
+
+Karena observasi ini, prioritas praktis direvisi: **pertahankan C1 39 pF tanpa jumper selama loop 4 m masih memberikan nol miss pada uji bergerak. Jangan mengganti C1 hanya berdasarkan perhitungan LC.** Perubahan kapasitor baru layak dilakukan sebagai A/B test ketika margin ketinggian, hits minimum, atau missed passage memang buruk.
+
 ## 2. Apa yang sebenarnya dilakukan rangkaian Cano
 
 Loop dipasang langsung di antara dua rail input diferensial Q1/Q2. Jaringan yang terlihat pada `LoopAmplifierRevB6.jpg` adalah:
