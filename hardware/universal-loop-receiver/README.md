@@ -8,6 +8,7 @@ Dokumen analisis lapangan:
 
 - [CANO-LOOP-TUNING-4M-ID.md](CANO-LOOP-TUNING-4M-ID.md) — jaringan tuning Cano untuk loop 3,5–4 m.
 - [FIELD-HITS-PROTOCOL-PLAN-ID.md](FIELD-HITS-PROTOCOL-PLAN-ID.md) — hit budget pada 40–50 km/jam, isolasi penyebab miss, dan urutan receiver/protocol baru.
+- [one-channel-rssi/README-ID.md](one-channel-rssi/README-ID.md) — desain Rev A monitor RSSI satu channel yang menjaga jalur decode Cano tetap utuh, lalu dasar Rev B receiver pengganti.
 
 ## 1. Sasaran produk yang disepakati
 

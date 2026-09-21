@@ -1,0 +1,18 @@
+stage,test,setup,measurement,pass criterion,status
+incoming,visual and value inspection,unpowered assembled PCB,BOM polarity solder bridges values,No wrong/DNP parts and no visible defects,NOT_RUN
+incoming,rail resistance,unpowered J1/J2 disconnected,+5V-to-GND and 3V3A-to-GND,No short; value recorded,NOT_RUN
+pass-through,DC continuity,unpowered,J1 center-to-J2 center resistance,<0.2 ohm excluding probe; shield continuity recorded,NOT_RUN
+pass-through,75R loading change,existing decoder and known coax,VNA or calibrated signal level before/after insertion,Insertion/load change characterized; target <0.5dB at 5MHz,NOT_RUN
+phantom,Cano supply DC,existing Cano amp connected,coax center and Cano test voltages,All remain within original baseline tolerance,NOT_RUN
+power,analog rail,5V bench supply current limited,+3V3A ripple and current,3.3V within 2%; no oscillation; current recorded,NOT_RUN
+rssi,zero-input output,J1/J2 terminated and shielded,VLOG mean/noise,Stable; no rail saturation; baseline recorded,NOT_RUN
+rssi,5MHz response,signal generator stepped -70 to 0dBm,VLOG at each step,Monotonic; fitted slope/intercept and residual recorded,NOT_RUN
+rssi,relative slope,at least two calibrated levels,delta VLOG/delta dB,Near 20mV/dB over useful range; board-specific fit saved,NOT_RUN
+rssi,burst response,5MHz 80us burst at legacy cadence,VLOG sampled >=100kS/s,Each burst visible without merging all gaps,NOT_RUN
+emi,WiFi effect,ESP32 WiFi OFF then AP active,noise baseline and spurs,Noise penalty quantified; target <1dB after enclosure/layout fixes,NOT_RUN
+functional,legacy decode pass-through,known good 2.5m loop 30 passages,hits quality misses versus board removed,0 misses and no statistically meaningful degradation,NOT_RUN
+field,3.5m 30cm single car,weak and strong transponders left/middle/right,RSSI peak noise delta hits rejects,Dataset complete and timestamps correlated,NOT_RUN
+field,3.5m 50cm single car,same as previous,RSSI two-lobe shape and packet stats,Dataset complete and compared with 30cm,NOT_RUN
+field,motor EMI,motor OFF/ON/speed,RSSI noise valid/reject hits,Per-vehicle change quantified,NOT_RUN
+field,multiple cars,12 cars and close passages,RSSI overlap rejects misses,Collision candidates identified,NOT_RUN
+reliability,1000 passage qualification,worst observed setup,miss false ID reset/lockup,0 missed and 0 false required before claim; Rev A monitor must not disturb decoder,NOT_RUN

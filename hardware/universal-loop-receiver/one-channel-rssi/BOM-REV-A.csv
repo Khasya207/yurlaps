@@ -1,0 +1,24 @@
+Reference,Quantity,Value/Part,Candidate manufacturer part,Package,Tolerance/notes,Populate Rev A
+U1,1,5-500MHz log amp RSSI+limiter,AD8309ARUZ,TSSOP-16,Production part; buy authorized source,YES
+U2,1,3.3V low-noise LDO,LP5907MFX-3.3/NOPB,SOT-23-5,250mA low noise fixed 3.3V,YES
+R1,1,2.21k,Generic thin film,0603,1% low excess noise,YES
+R2,1,1k,Generic thin film,0603,1% optional input shunt,NO
+R3 R6,2,10R,Generic thick/thin film,0603,1%,YES
+R4,1,10k,Generic,0603,1% ENBL pull-up,YES
+R5,1,100k,Generic,0603,1% optional ENBL pull-down,YES
+R7,1,47R,Generic,0603,1% VLOG isolation,YES
+C1 C2,2,10nF,C0G/NP0 preferred,0805,5% RF coupling,YES
+C3,1,10pF,C0G/NP0,0603,2% optional differential filter,NO
+C4 C7,2,100nF,C0G or X7R,0603,10% supply decoupling,YES
+C5 C8 C11,3,1uF,X7R 10V,0603/0805,20% bias-safe at 3.3V,YES
+C6,1,33pF,C0G/NP0,0603,2% RSSI BW about 350kHz,YES
+C9,1,1nF,C0G/NP0,0603,5% RSSI ADC anti-alias/isolation,YES
+C10,1,4.7uF,X7R 10V,0805,20% LDO input,YES
+D1,1,Low-cap ESD,PESD5V0S1UL,SOD-882,Optional until capacitance/noise measured,NO
+J1 J2,2,75-ohm RF connector,BNC/F chosen for enclosure,Through-hole,True 75R connector preferred,YES
+J3,1,2-pin power connector,Locking 2-pin,THT,5V and GND,YES
+J4,1,3-pin analog output,Locking 3-pin,THT,3V3A GND RSSI_OUT; keyed,YES
+SH1,1,RF shield can frame,Layout-selected,SMD,Large enough for U1 input section,YES
+TP1,1,Small RF test pad,PCB pad,SMD,No header stub,YES
+TP2 TP3 TP4 TP5 TP6,5,Low-profile test point,Keystone/copper pad,SMD,Ground power RSSI enable,YES
+PCB1,1,ULR-RSSI-1 Rev A,TBD,2-layer FR-4,1.6mm 1oz controlled return paths,YES
