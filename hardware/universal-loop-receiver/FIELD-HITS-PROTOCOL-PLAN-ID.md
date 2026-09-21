@@ -54,7 +54,13 @@ Jarak kendaraan di antara awal dua telegram rata-rata adalah:
 50 km/jam: 13,89 m/s x 2,48 ms = 3,44 cm
 ```
 
-Dua hits setara dengan area deteksi efektif hanya sekitar 5,5–6,9 cm bila semua paket lain hilang karena kendaraan berada di luar threshold. Karena medan loop biasanya mempunyai dua lobe dekat dua kabel dan dapat melemah di tengah, angka ini bukan pengukuran jarak yang presisi. Namun dua hits tetap berarti hanya sekitar 10–17% kesempatan paket pada model area penuh yang berhasil menjadi telegram valid.
+Dua hits setara dengan area deteksi efektif hanya sekitar 5,5–6,9 cm bila packet cadence rata-rata dipakai. Namun angka 12–20 di atas adalah **upper bound dengan asumsi seluruh 50 cm merupakan area aktif kontinu**, bukan jumlah hits yang wajib terlihat.
+
+Loop diferensial biasanya mempunyai dua lobe penerimaan di dekat kedua kabel dan null/pelemahan di tengah akibat pembatalan medan. Bila satu lobe yang efektif hanya selebar 5–10 cm, kendaraan hanya berada di lobe itu sekitar 3,6–9 ms dan hanya menyediakan sekitar 1–4 kesempatan paket. Decoder passage juga dapat menutup cluster pertama sebelum kendaraan mencapai kabel kedua. Dalam kondisi tersebut, dua hits dapat berasal dari dua packet valid di satu lobe, bukan bukti bahwa 10–18 packet lain semuanya rusak.
+
+Jarak kabel 50 cm memberi waktu antarkabel sekitar 36–45 ms pada kecepatan ini. Sebagai pembanding, jarak referensi 30 cm memberi sekitar 21,6–27 ms. Memperlebar jarak kabel tidak otomatis menambah hits; ia dapat memisahkan dua lobe lebih jauh. Karena itu 30 cm dan 50 cm perlu diuji A/B pada lebar track, kendaraan, dan kecepatan yang sama.
+
+Walaupun dua hits masih masuk akal pada model satu lobe, margin tersebut tetap terlalu kecil untuk target nol missed lap: hilangnya dua packet saja sudah menghilangkan passage.
 
 ## 3. Arti hits dan quality
 
