@@ -4,8 +4,10 @@ Status: arsitektur awal / belum menjadi skema produksi
 
 Tanggal: 2026-09-16
 
-Analisis khusus jaringan tuning Cano untuk loop 3,5–4 m tersedia di
-[CANO-LOOP-TUNING-4M-ID.md](CANO-LOOP-TUNING-4M-ID.md).
+Dokumen analisis lapangan:
+
+- [CANO-LOOP-TUNING-4M-ID.md](CANO-LOOP-TUNING-4M-ID.md) — jaringan tuning Cano untuk loop 3,5–4 m.
+- [FIELD-HITS-PROTOCOL-PLAN-ID.md](FIELD-HITS-PROTOCOL-PLAN-ID.md) — hit budget pada 40–50 km/jam, isolasi penyebab miss, dan urutan receiver/protocol baru.
 
 ## 1. Sasaran produk yang disepakati
 
